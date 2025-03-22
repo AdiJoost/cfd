@@ -1,7 +1,8 @@
-from src.example import example
+from src.simulation.simulation import Simulation
 
 def main():
-    example.main()
+    simulation = Simulation("lid_driven_cavity")
+    simulation.run()
 
 if __name__ == "__main__":
     main()
