@@ -1,5 +1,5 @@
 from pathlib import Path
-rootFolder = "ProjectTemplate"
+rootFolder = "cfd"
 
 def getRootPath() -> Path:
     parts = Path.cwd().parts
