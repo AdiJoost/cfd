@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import List
+import numpy as np
 
 from config.rootPath import getRootPath
 from config.simulationConfig.simulationConfigFields import SimulationConfigFields
@@ -51,6 +51,15 @@ class SimulationManager():
     
     def getMaxItterations(self) -> int:
         return self._getValue(SimulationConfigFields.MAX_ITTERATIONS)
+    
+    def getVArray(self) -> np.array:
+        return np.zeros((self.getJayMax(), self.getIMax()))
+    
+    def getUArray(self) -> np.array:
+        return np.zeros((self.getJayMax(), self.getIMax()))
+    
+    def getPressureArray(self) -> np.array:
+        return np.zeros((self.getJayMax(), self.getIMax()))
 
     def _getValue(self, simulationConfigField: SimulationConfigFields) -> any:
         return self.values.get(simulationConfigField.value)

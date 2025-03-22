@@ -9,6 +9,6 @@
     "epsilon": 0.001,
     "omega": 1.7,
     "alpha": 0.5,
-    "REYNOLDS_NUBMER": 100,
-    "MAX_ITTERATIONS":100
+    "reynoldsNumber": 100,
+    "iterMax":100
 }
