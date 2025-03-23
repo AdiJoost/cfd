@@ -15,6 +15,7 @@ class Simulation():
         self.maxItteration = self.simulationManager.getMaxItterations()
         self.reynoldsNumber = self.simulationManager.getReynoldsNumber()
         self.epsilon = self.simulationManager.getEpsilon()
+        self.alpha = self.simulationManager.getAlpha()
         self.tau = self.simulationManager.getTau()
         self.vArray = self.simulationManager.getVArray()
         self.uArray: np.array = self.simulationManager.getUArray()
@@ -22,8 +23,8 @@ class Simulation():
         self.time = 0.0
         self.endTime = self.simulationManager.getEndTime()
         self.deltaTime = self.simulationManager.getDeltaTime()
-        self.fStar = 0
-        self.gStar = 0
+        self.fStar = self.simulationManager.getVArray()
+        self.gStar = self.simulationManager.getVArray()
 
 
     def run(self) -> None:
@@ -38,6 +39,7 @@ class Simulation():
             self._updateV()
             self.time += deltaTime
         print(self.uArray)
+        print(self.fStar)
 
     def _caluclateDeltaTime(self) -> float:
         maxFromU = np.max(self.uArray)
@@ -54,10 +56,37 @@ class Simulation():
         self.uArray[0, :] = 2 - self.uArray[1, :]
 
     def _computeFStar(self) -> None:
-        pass
+        d2U_dX2 = self._get_d2U_dX2()
+        d2U_DY2 = self._get_d2U_dY2()
+        dU2_dX = self._get_dU2_dX()
+        self.fStar = (1/ self.reynoldsNumber) *(d2U_dX2 + d2U_DY2) - dU2_dX
 
     def _computeGStar(self) -> None:
         pass
+
+    def _get_d2U_dX2(self):
+        result = np.zeros_like(self.uArray)
+        result[1:-1, :] = (self.uArray[2:,:] - 2*self.uArray[1:-1, :] + self.uArray[:-2, :]) /(self.xLength**2)
+        return result
+    
+    def _get_d2U_dY2(self):
+        result = np.zeros_like(self.uArray)
+        result[:, 1:-1] = (self.uArray[:,2:] - 2*self.uArray[:, 1:-1] + self.uArray[:, :-2]) /(self.yLength**2)
+        return result
+    
+    def _get_dU2_dX(self):
+        result = np.zeros_like(self.uArray)
+        result[1:-1, :] = (1/self.xLength) * ( ((self.uArray[1:-1,:] + self.uArray[2:,:]) / 2)**2 - ((self.uArray[1:-1,:] + self.uArray[:-2,:]) / 2)**2 ) 
+        alphaParam = np.zeros_like(self.uArray)
+        alphaParam[1:-1, :] = (self.alpha / self.xLength) * ((np.abs(self.uArray[1:-1,:] + self.uArray[2:,:]) * (self.uArray[1:-1,:] - self.uArray[2:,:]) / 4 ) - (np.abs(self.uArray[1:-1,:] + self.uArray[:-2,:]) * (self.uArray[:-2,:] - self.uArray[1:-1,:]) / 4 ))
+        return result + alphaParam
+    
+    def _get_dUV_dy(self):
+        result = np.zeros_like(self.uArray)
+        result[1:-1, :] = (1/self.xLength) * ( ((self.uArray[1:-1,:] + self.uArray[2:,:]) / 2)**2 - ((self.uArray[1:-1,:] + self.uArray[:2,:]) / 2)**2 ) 
+        alphaParam = np.zeros_like(self.uArray)
+        alphaParam[1:-1, :] = (self.alpha / self.xLength) * ((np.abs(self.uArray[1:-1,:] + self.uArray[2:,:]) * (self.uArray[1:-1,:] - self.uArray[2:,:]) / 4 ) - (np.abs(self.uArray[1:-1,:] + self.uArray[:-2,:]) * (self.uArray[:-2,:] - self.uArray[1:-1,:]) / 4 ))
+        return result + alphaParam
 
     def _updatePressure(self) -> None:
         res = float("inf")
