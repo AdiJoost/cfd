@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from config.simulationConfig.simulationManager import SimulationManager
+from src.solvers.idkTheName import step
 
 
 class Simulation():
@@ -34,13 +35,10 @@ class Simulation():
             self._setBoundaries()
             self._computeFStar(deltaTime)
             self._computeGStar(deltaTime)
-            self._updatePressure()
-            self._updateU()
-            self._updateV()
+            self._updatePressure(deltaTime)
+            self._updateU(deltaTime)
+            self._updateV(deltaTime)
             self.time += deltaTime
-        print(self.uArray)
-        print(self.fStar)
-        print(self.gStar)
         self.plot()
 
     def _caluclateDeltaTime(self) -> float:
@@ -55,7 +53,14 @@ class Simulation():
         return self.tau * min (reynoldsStability, deltaTX, deltaTY)
 
     def _setBoundaries(self) -> None:
-        self.uArray[0, :] = 2 - self.uArray[1, :]
+        self.uArray[:, 0] = 2 - self.uArray[:, 1]
+        self.uArray[:, self.jMax - 1] = 1 - self.uArray[:, self.jMax - 2]
+        self.uArray[0,:] = 0
+        self.uArray[self.iMax - 1,:] = 0
+        self.vArray[0,:] = 2 - self.vArray[1,:]
+        self.vArray[self.iMax - 1,:] = 2 - self.vArray[self.iMax - 2,:]
+        self.vArray[:, self.jMax - 1] = 0
+        self.vArray[:, 0] = 0
 
     def _computeFStar(self, deltaTime) -> None:
         d2U_dX2 = self._get_d2U_dX2()
@@ -119,17 +124,23 @@ class Simulation():
         alphaParam[:, 1:-1] = (self.alpha / self.yLength) * ((np.abs(self.vArray[:,1:-1] + self.vArray[:,2:]) * (self.vArray[:,1:-1] - self.vArray[:,2:]) / 4 ) - (np.abs(self.vArray[:,1:-1] + self.vArray[:,:-2]) * (self.vArray[:,:-2] - self.vArray[:,1:-1]) / 4 ))
         return result + alphaParam
 
-    def _updatePressure(self) -> None:
+    def _updatePressure(self, dt) -> None:
         res = float("inf")
         itteration = 0
-        while res > self.epsilon and itteration < self.maxItteration:
+        while res > self.epsilon and itteration < 100:
+            step(self.PressureArray, self.fStar, self.gStar, self.xLength, self.yLength, dt)
             itteration += 1
+        self.PressureArray[0,:] = self.PressureArray[1,:]
+        self.PressureArray[self.iMax - 1, :] = self.PressureArray[self.iMax - 2, :]
+        self.PressureArray[:, 0] = self.PressureArray[:, 1]
+        self.PressureArray[:, self.jMax - 1] = self.PressureArray[:, self.jMax - 2]
 
-    def _updateU(self) -> None:
-        pass
 
-    def _updateV(self) -> None:
-        pass
+    def _updateU(self, dt) -> None:
+        self.uArray[1:,:] = self.fStar[1:,:] - (dt/self.xLength)* (self.PressureArray[1:,:] - self.PressureArray[:-1,:])
+
+    def _updateV(self, dt) -> None:
+        self.vArray[:,1:] = self.gStar[:,1:] - (dt/self.yLength)* (self.PressureArray[:,1:] - self.PressureArray[:,:-1])
 
     def plot(self) -> None:
         fig = plt.figure(figsize=(11, 7), dpi=100)
