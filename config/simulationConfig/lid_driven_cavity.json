@@ -4,7 +4,7 @@
     "xLength": 1.0,
     "yLength": 1.0,
     "delta_time": 0.05,
-    "end_time": 50.0,
+    "end_time": 10.0,
     "tau": 0.5,
     "epsilon": 0.001,
     "omega": 1.7,
