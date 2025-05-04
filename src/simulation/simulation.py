@@ -63,7 +63,7 @@ class Simulation():
         self.save()
 
     def save(self) -> None:
-        VTKMapper(fileName="lid_driven_cavity", uVector=self.uArray, vVector=self.vArray, pressureVector=self.PressureArray).export()
+        VTKMapper(fileName=self.simulationManager.getFileName(), uVector=self.uArray, vVector=self.vArray, pressureVector=self.PressureArray).export()
 
     def _caluclateDeltaTime(self) -> float:
         maxFromU = np.max(self.uArray)
