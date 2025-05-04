@@ -18,7 +18,7 @@ def stepWithIndices(pArray, fStar, gStar, dx, dy, dt, j, jMinus1, jPlus1, i, iMi
                                  ) + (
                                  (gStar[j,i] - gStar[jMinus1, i]) * (1.0/dy)        
                                  )     
-                            )
+                            ) * (dy**2) * (dx**2)
                         ) - (
                         dy**2 * (pArray[j, iPlus1] + pArray[j, iMinus1])
                         ) - (

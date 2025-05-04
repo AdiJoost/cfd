@@ -3,3 +3,4 @@ numpy
 matplotlib
 lic
 vtk
+pyvista

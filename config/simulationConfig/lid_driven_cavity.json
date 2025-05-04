@@ -1,14 +1,14 @@
 {
-    "iMax": 50,
-    "jMax": 50,
+    "iMax": 51,
+    "jMax": 51,
     "xLength": 1.0,
     "yLength": 1.0,
     "delta_time": 0.05,
-    "end_time": 10.0,
+    "end_time": 20.0,
     "tau": 0.5,
-    "epsilon": 0.001,
+    "epsilon": 0.0001,
     "omega": 1.7,
     "alpha": 0.5,
-    "reynoldsNumber": 100,
+    "reynoldsNumber": 0.01,
     "iterMax":100
 }
